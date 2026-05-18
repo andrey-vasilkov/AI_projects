@@ -8,6 +8,7 @@ __pycache__/
 crm/node_modules/
 crm/dist/
 crm/.vite/
+crm/.vite/
 crm/__pycache__/
 venv/
 .venv/
