@@ -1,0 +1,16 @@
+services:
+  backend:
+    build: ./backend
+    container_name: crm-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/data.json:/app/data.json
+
+  frontend:
+    build: ./frontend
+    container_name: crm-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend

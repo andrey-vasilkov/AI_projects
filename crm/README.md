@@ -8,17 +8,32 @@
 
 ## Требования
 
-- Node.js 18+
-- Python 3.9+
+- **Ручной запуск:** Node.js 18+, Python 3.9+
+- **Docker:** Docker + Docker Compose
 
 ---
 
-## Запуск
+## Запуск через Docker (рекомендуется)
+
+```bash
+cd crm
+docker compose up --build
+```
+
+- Фронтенд: http://localhost
+- Бэкенд: http://localhost:8000  
+- API docs (Swagger): http://localhost:8000/docs
+
+Остановить: `docker compose down`
+
+---
+
+## Ручной запуск
 
 ### 1. Бэкенд
 
 ```bash
-cd backend
+cd crm/backend
 python -m venv venv
 source venv/bin/activate      # Linux / macOS
 # venv\Scripts\activate        # Windows
@@ -33,7 +48,7 @@ uvicorn main:app --reload --port 8000
 Откройте второй терминал:
 
 ```bash
-cd crm           # если вы в корне репозитория
+cd crm/frontend
 npm install
 npm run dev
 ```
@@ -58,9 +73,30 @@ npm run dev
 
 ---
 
-## Сборка
+## Структура проекта
+
+```
+crm/
+├── backend/
+│   ├── Dockerfile
+│   ├── main.py
+│   ├── requirements.txt
+│   └── data.json
+├── frontend/
+│   ├── Dockerfile
+│   ├── nginx.conf
+│   ├── package.json
+│   ├── src/
+│   └── vite.config.ts
+├── docker-compose.yml
+├── .dockerignore
+└── README.md
+```
+
+## Сборка фронтенда (без Docker)
 
 ```bash
-npm run build     # собрать фронтенд
-npm run preview   # посмотреть сборку локально
+cd crm/frontend
+npm run build
+npm run preview
 ```
