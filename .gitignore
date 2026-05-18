@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+__pycache__/
+*.pyc
+.env
+crm/
+backend/__pycache__/
+
