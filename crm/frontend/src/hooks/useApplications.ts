@@ -3,7 +3,13 @@ import type { Application, ApplicationStatus } from '../types';
 
 const API = '/api/applications';
 
-export function useApplications(search: string, statusFilter: string) {
+function headers(token?: string | null): Record<string, string> {
+  const h: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) h['Authorization'] = `Bearer ${token}`;
+  return h;
+}
+
+export function useApplications(search: string, statusFilter: string, token?: string | null) {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const fetchId = useRef(0);
@@ -35,33 +41,33 @@ export function useApplications(search: string, statusFilter: string) {
     async (clientName: string, contact: string, text: string) => {
       const res = await fetch(API, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: headers(token),
         body: JSON.stringify({ clientName, contact, text }),
       });
       const created = await res.json();
       setApplications((prev) => [created, ...prev]);
     },
-    [],
+    [token],
   );
 
   const updateStatus = useCallback(
     async (id: string, status: ApplicationStatus) => {
       await fetch(`${API}/${id}/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: headers(token),
         body: JSON.stringify({ status }),
       });
       setApplications((prev) =>
         prev.map((app) => (app.id === id ? { ...app, status } : app)),
       );
     },
-    [],
+    [token],
   );
 
   const deleteApplication = useCallback(async (id: string) => {
-    await fetch(`${API}/${id}`, { method: 'DELETE' });
+    await fetch(`${API}/${id}`, { method: 'DELETE', headers: headers(token) });
     setApplications((prev) => prev.filter((app) => app.id !== id));
-  }, []);
+  }, [token]);
 
   return { applications, loading, addApplication, updateStatus, deleteApplication };
 }

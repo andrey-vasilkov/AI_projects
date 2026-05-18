@@ -20,6 +20,11 @@
   margin: 0;
 }
 
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
 .addBtn {
   padding: 10px 20px;
   border: none;
@@ -34,6 +39,23 @@
 
 .addBtn:hover {
   background: #5a52e0;
+}
+
+.logoutBtn {
+  padding: 10px 16px;
+  border: 1px solid #d0d0d0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  background: #fff;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.logoutBtn:hover {
+  border-color: #e53935;
+  color: #e53935;
 }
 
 .filters {

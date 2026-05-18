@@ -1,27 +1,39 @@
 import { useState } from 'react';
+import { useAuth } from './hooks/useAuth';
 import { useApplications } from './hooks/useApplications';
 import ApplicationList from './components/ApplicationList';
 import ApplicationForm from './components/ApplicationForm';
+import LoginForm from './components/LoginForm';
 import type { ApplicationStatus } from './types';
 import styles from './App.module.css';
 
 const allStatuses: ApplicationStatus[] = ['Новая', 'В работе', 'Завершена'];
 
 export default function App() {
+  const { token, login, logout } = useAuth();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [showForm, setShowForm] = useState(false);
 
   const { applications, loading, addApplication, updateStatus, deleteApplication } =
-    useApplications(search, statusFilter);
+    useApplications(search, statusFilter, token);
+
+  if (!token) {
+    return <LoginForm onLogin={login} />;
+  }
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.title}>Заявки</h1>
-        <button className={styles.addBtn} onClick={() => setShowForm(true)}>
-          + Добавить заявку
-        </button>
+        <div className={styles.actions}>
+          <button className={styles.addBtn} onClick={() => setShowForm(true)}>
+            + Добавить заявку
+          </button>
+          <button className={styles.logoutBtn} onClick={logout}>
+            Выйти
+          </button>
+        </div>
       </div>
 
       <div className={styles.filters}>

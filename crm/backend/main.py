@@ -1,10 +1,20 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
+from jose import jwt, JWTError
+from hashlib import sha256
 import json
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
+
+JWT_SECRET = "crm-secret-key-change-in-production"
+JWT_ALG = "HS256"
+JWT_TTL = timedelta(days=1)
+
+ADMIN_LOGIN = "admin"
+ADMIN_PASSWORD_HASH = sha256(b"admin").hexdigest()
 
 app = FastAPI(title="CRM API")
 
@@ -16,6 +26,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+security = HTTPBearer(auto_error=False)
 DATA_FILE = Path(__file__).parent / "data.json"
 
 
@@ -38,6 +49,15 @@ class StatusUpdate(BaseModel):
     status: str
 
 
+class LoginRequest(BaseModel):
+    login: str
+    password: str
+
+
+class TokenResponse(BaseModel):
+    token: str
+
+
 def load_data() -> list[dict]:
     if not DATA_FILE.exists():
         return []
@@ -49,6 +69,32 @@ def load_data() -> list[dict]:
 
 def save_data(data: list[dict]) -> None:
     DATA_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
+
+
+def verify_token(credentials: HTTPAuthorizationCredentials | None = Depends(security)) -> None:
+    if credentials is None:
+        raise HTTPException(401, "Unauthorized")
+    try:
+        payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=[JWT_ALG])
+        if payload.get("login") != ADMIN_LOGIN:
+            raise HTTPException(401, "Invalid token")
+    except JWTError:
+        raise HTTPException(401, "Invalid token")
+
+
+@app.post("/api/auth/login")
+def login(payload: LoginRequest) -> TokenResponse:
+    if (
+        payload.login != ADMIN_LOGIN
+        or sha256(payload.password.encode()).hexdigest() != ADMIN_PASSWORD_HASH
+    ):
+        raise HTTPException(401, "Invalid credentials")
+    token = jwt.encode(
+        {"login": payload.login, "exp": datetime.now(timezone.utc) + JWT_TTL},
+        JWT_SECRET,
+        algorithm=JWT_ALG,
+    )
+    return TokenResponse(token=token)
 
 
 @app.get("/api/applications")
@@ -69,7 +115,7 @@ def get_applications(search: str = "", status: str = "") -> list[ApplicationOut]
 
 
 @app.post("/api/applications", status_code=201)
-def create_app(payload: ApplicationCreate) -> ApplicationOut:
+def create_app(payload: ApplicationCreate, _=Depends(verify_token)) -> ApplicationOut:
     data = load_data()
     app_entry: ApplicationOut = {
         "id": uuid.uuid4().hex,
@@ -85,7 +131,7 @@ def create_app(payload: ApplicationCreate) -> ApplicationOut:
 
 
 @app.patch("/api/applications/{app_id}/status")
-def update_status(app_id: str, payload: StatusUpdate) -> ApplicationOut:
+def update_status(app_id: str, payload: StatusUpdate, _=Depends(verify_token)) -> ApplicationOut:
     data = load_data()
     for entry in data:
         if entry["id"] == app_id:
@@ -96,7 +142,7 @@ def update_status(app_id: str, payload: StatusUpdate) -> ApplicationOut:
 
 
 @app.delete("/api/applications/{app_id}", status_code=204)
-def delete_app(app_id: str) -> None:
+def delete_app(app_id: str, _=Depends(verify_token)) -> None:
     data = load_data()
     new_data = [e for e in data if e["id"] != app_id]
     if len(new_data) == len(data):

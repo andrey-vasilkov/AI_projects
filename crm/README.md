@@ -2,7 +2,8 @@
 
 Простое CRM-приложение для управления заявками клиентов.
 
-**Стек:** React + TypeScript + Vite (фронтенд), FastAPI + Uvicorn (бэкенд), данные хранятся в `data.json`.
+**Стек:** React + TypeScript + Vite (фронтенд), FastAPI + Uvicorn (бэкенд), данные хранятся в `data.json`.  
+**Авторизация:** JWT-токен. Учётная запись по умолчанию — `admin` / `admin`.
 
 ---
 
