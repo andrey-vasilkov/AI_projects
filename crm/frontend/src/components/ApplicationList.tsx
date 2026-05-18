@@ -4,12 +4,14 @@ import styles from './ApplicationList.module.css';
 
 interface Props {
   applications: Application[];
+  canEdit: boolean;
   onStatusChange: (id: string, status: ApplicationStatus) => void;
   onDelete: (id: string) => void;
 }
 
 export default function ApplicationList({
   applications,
+  canEdit,
   onStatusChange,
   onDelete,
 }: Props) {
@@ -23,6 +25,7 @@ export default function ApplicationList({
         <ApplicationCard
           key={app.id}
           application={app}
+          canEdit={canEdit}
           onStatusChange={onStatusChange}
           onDelete={onDelete}
         />

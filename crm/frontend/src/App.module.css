@@ -58,6 +58,23 @@
   color: #e53935;
 }
 
+.loginBtn {
+  padding: 10px 20px;
+  border: 1px solid #6c63ff;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  background: #fff;
+  color: #6c63ff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.loginBtn:hover {
+  background: #6c63ff;
+  color: #fff;
+}
+
 .filters {
   display: flex;
   gap: 12px;

@@ -5,12 +5,14 @@ const statuses: ApplicationStatus[] = ['Новая', 'В работе', 'Зав�
 
 interface Props {
   application: Application;
+  canEdit: boolean;
   onStatusChange: (id: string, status: ApplicationStatus) => void;
   onDelete: (id: string) => void;
 }
 
 export default function ApplicationCard({
   application,
+  canEdit,
   onStatusChange,
   onDelete,
 }: Props) {
@@ -31,25 +33,31 @@ export default function ApplicationCard({
       <div className={styles.contact}>{application.contact}</div>
       {application.text && <p className={styles.text}>{application.text}</p>}
       <div className={styles.actions}>
-        <select
-          className={styles.select}
-          value={application.status}
-          onChange={(e) =>
-            onStatusChange(application.id, e.target.value as ApplicationStatus)
-          }
-        >
-          {statuses.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
-        <button
-          className={styles.deleteBtn}
-          onClick={() => onDelete(application.id)}
-        >
-          Удалить
-        </button>
+        {canEdit ? (
+          <>
+            <select
+              className={styles.select}
+              value={application.status}
+              onChange={(e) =>
+                onStatusChange(application.id, e.target.value as ApplicationStatus)
+              }
+            >
+              {statuses.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+            <button
+              className={styles.deleteBtn}
+              onClick={() => onDelete(application.id)}
+            >
+              Удалить
+            </button>
+          </>
+        ) : (
+          <span className={styles.status}>{application.status}</span>
+        )}
       </div>
     </div>
   );

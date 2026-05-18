@@ -14,25 +14,32 @@ export default function App() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
 
   const { applications, loading, addApplication, updateStatus, deleteApplication } =
     useApplications(search, statusFilter, token);
 
-  if (!token) {
-    return <LoginForm onLogin={login} />;
-  }
+  const isAuthed = !!token;
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.title}>Заявки</h1>
         <div className={styles.actions}>
-          <button className={styles.addBtn} onClick={() => setShowForm(true)}>
-            + Добавить заявку
-          </button>
-          <button className={styles.logoutBtn} onClick={logout}>
-            Выйти
-          </button>
+          {isAuthed ? (
+            <>
+              <button className={styles.addBtn} onClick={() => setShowForm(true)}>
+                + Добавить заявку
+              </button>
+              <button className={styles.logoutBtn} onClick={logout}>
+                Выйти
+              </button>
+            </>
+          ) : (
+            <button className={styles.loginBtn} onClick={() => setShowLogin(true)}>
+              Войти
+            </button>
+          )}
         </div>
       </div>
 
@@ -59,6 +66,7 @@ export default function App() {
 
       <ApplicationList
         applications={applications}
+        canEdit={isAuthed}
         onStatusChange={updateStatus}
         onDelete={deleteApplication}
       />
@@ -70,6 +78,13 @@ export default function App() {
             setShowForm(false);
           }}
           onCancel={() => setShowForm(false)}
+        />
+      )}
+
+      {showLogin && (
+        <LoginForm
+          onLogin={login}
+          onClose={() => setShowLogin(false)}
         />
       )}
     </div>

@@ -3,9 +3,10 @@ import styles from './LoginForm.module.css';
 
 interface Props {
   onLogin: (login: string, password: string) => Promise<void>;
+  onClose: () => void;
 }
 
-export default function LoginForm({ onLogin }: Props) {
+export default function LoginForm({ onLogin, onClose }: Props) {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -17,6 +18,7 @@ export default function LoginForm({ onLogin }: Props) {
     setBusy(true);
     try {
       await onLogin(login, password);
+      onClose();
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -25,8 +27,8 @@ export default function LoginForm({ onLogin }: Props) {
   };
 
   return (
-    <div className={styles.overlay}>
-      <form className={styles.form} onSubmit={handleSubmit}>
+    <div className={styles.overlay} onClick={onClose}>
+      <form className={styles.form} onClick={(e) => e.stopPropagation()} onSubmit={handleSubmit}>
         <h2 className={styles.title}>Вход в CRM</h2>
 
         <div className={styles.field}>

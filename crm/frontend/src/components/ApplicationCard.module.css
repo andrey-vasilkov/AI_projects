@@ -83,3 +83,9 @@
 .deleteBtn:hover {
   background: #ffc0c0;
 }
+
+.status {
+  font-size: 13px;
+  font-weight: 500;
+  color: #888;
+}
