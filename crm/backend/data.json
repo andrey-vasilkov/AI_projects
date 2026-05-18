@@ -1,13 +1,5 @@
 [
   {
-    "id": "00b747e21f9641979947103d7918efa9",
-    "clientName": "Test",
-    "contact": "test@test.com",
-    "text": "test",
-    "status": "Новая",
-    "createdAt": "2026-05-18T10:24:56.438726+00:00"
-  },
-  {
     "id": "b721df8561a14d4b9e9982451f56f9a8",
     "clientName": "Дональд Трамп",
     "contact": "maga@gmail.com",
