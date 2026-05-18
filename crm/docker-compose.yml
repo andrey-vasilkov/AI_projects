@@ -6,6 +6,10 @@ services:
       - "8000:8000"
     volumes:
       - ./backend/data.json:/app/data.json
+    environment:
+      - JWT_SECRET=${JWT_SECRET:-crm-secret-key-change-in-production}
+      - ADMIN_LOGIN=${ADMIN_LOGIN:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
 
   frontend:
     build: ./frontend

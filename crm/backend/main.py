@@ -6,15 +6,17 @@ from jose import jwt, JWTError
 from hashlib import sha256
 import json
 import uuid
+import os
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
-JWT_SECRET = "crm-secret-key-change-in-production"
+JWT_SECRET = os.getenv("JWT_SECRET", "crm-secret-key-change-in-production")
 JWT_ALG = "HS256"
 JWT_TTL = timedelta(days=1)
 
-ADMIN_LOGIN = "admin"
-ADMIN_PASSWORD_HASH = sha256(b"admin").hexdigest()
+ADMIN_LOGIN = os.getenv("ADMIN_LOGIN", "admin")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin")
+ADMIN_PASSWORD_HASH = sha256(ADMIN_PASSWORD.encode()).hexdigest()
 
 app = FastAPI(title="CRM API")
 

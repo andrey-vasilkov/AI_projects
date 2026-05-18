@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useAuth } from './hooks/useAuth';
 import { useApplications } from './hooks/useApplications';
+import { useToast } from './hooks/useToast';
 import ApplicationList from './components/ApplicationList';
 import ApplicationForm from './components/ApplicationForm';
 import LoginForm from './components/LoginForm';
+import ToastContainer from './components/ToastContainer';
 import type { ApplicationStatus } from './types';
 import styles from './App.module.css';
 
@@ -16,13 +18,16 @@ export default function App() {
   const [showForm, setShowForm] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
 
+  const { toasts, addToast } = useToast();
+
   const { applications, loading, addApplication, updateStatus, deleteApplication } =
-    useApplications(search, statusFilter, token);
+    useApplications(search, statusFilter, token, addToast);
 
   const isAuthed = !!token;
 
   return (
     <div className={styles.container}>
+      <ToastContainer toasts={toasts} />
       <div className={styles.header}>
         <h1 className={styles.title}>Заявки</h1>
         <div className={styles.actions}>

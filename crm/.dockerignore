@@ -4,5 +4,7 @@ dist/
 __pycache__/
 *.pyc
 .git
-*.md
 .DS_Store
+.env
+.venv/
+venv/

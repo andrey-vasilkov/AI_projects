@@ -9,7 +9,12 @@ function headers(token?: string | null): Record<string, string> {
   return h;
 }
 
-export function useApplications(search: string, statusFilter: string, token?: string | null) {
+export function useApplications(
+  search: string,
+  statusFilter: string,
+  token?: string | null,
+  onNotify?: (msg: string, type?: 'error' | 'success') => void,
+) {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const fetchId = useRef(0);
@@ -29,9 +34,12 @@ export function useApplications(search: string, statusFilter: string, token?: st
         setLoading(false);
       }
     } catch {
-      if (id === fetchId.current) setLoading(false);
+      if (id === fetchId.current) {
+        setLoading(false);
+        onNotify?.('Не удалось загрузить заявки', 'error');
+      }
     }
-  }, [search, statusFilter]);
+  }, [search, statusFilter, onNotify]);
 
   useEffect(() => {
     fetchApps();
@@ -39,35 +47,51 @@ export function useApplications(search: string, statusFilter: string, token?: st
 
   const addApplication = useCallback(
     async (clientName: string, contact: string, text: string) => {
-      const res = await fetch(API, {
-        method: 'POST',
-        headers: headers(token),
-        body: JSON.stringify({ clientName, contact, text }),
-      });
-      const created = await res.json();
-      setApplications((prev) => [created, ...prev]);
+      try {
+        const res = await fetch(API, {
+          method: 'POST',
+          headers: headers(token),
+          body: JSON.stringify({ clientName, contact, text }),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const created = await res.json();
+        setApplications((prev) => [created, ...prev]);
+        onNotify?.('Заявка добавлена', 'success');
+      } catch {
+        onNotify?.('Не удалось добавить заявку', 'error');
+      }
     },
-    [token],
+    [token, onNotify],
   );
 
   const updateStatus = useCallback(
     async (id: string, status: ApplicationStatus) => {
-      await fetch(`${API}/${id}/status`, {
-        method: 'PATCH',
-        headers: headers(token),
-        body: JSON.stringify({ status }),
-      });
-      setApplications((prev) =>
-        prev.map((app) => (app.id === id ? { ...app, status } : app)),
-      );
+      try {
+        const res = await fetch(`${API}/${id}/status`, {
+          method: 'PATCH',
+          headers: headers(token),
+          body: JSON.stringify({ status }),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        setApplications((prev) =>
+          prev.map((app) => (app.id === id ? { ...app, status } : app)),
+        );
+      } catch {
+        onNotify?.('Не удалось изменить статус', 'error');
+      }
     },
-    [token],
+    [token, onNotify],
   );
 
   const deleteApplication = useCallback(async (id: string) => {
-    await fetch(`${API}/${id}`, { method: 'DELETE', headers: headers(token) });
-    setApplications((prev) => prev.filter((app) => app.id !== id));
-  }, [token]);
+    try {
+      const res = await fetch(`${API}/${id}`, { method: 'DELETE', headers: headers(token) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      setApplications((prev) => prev.filter((app) => app.id !== id));
+    } catch {
+      onNotify?.('Не удалось удалить заявку', 'error');
+    }
+  }, [token, onNotify]);
 
   return { applications, loading, addApplication, updateStatus, deleteApplication };
 }
